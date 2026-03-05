@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZEYY DL</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#07070f;--card:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.08);--text:#f1f5f9;--muted:rgba(255,255,255,0.4);--red:#ff3b3b;--green:#00e5a0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;overflow-x:hidden}
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none}
+.blob{position:absolute;border-radius:50%;filter:blur(100px);opacity:0.1}
+.blob:nth-child(1){width:500px;height:500px;background:#ff3b3b;top:-150px;left:-150px}
+.blob:nth-child(2){width:400px;height:400px;background:#ff0099;bottom:-100px;right:-100px}
+.wrap{position:relative;z-index:1;max-width:640px;margin:0 auto;padding:36px 18px 60px}
+.header{text-align:center;margin-bottom:40px}
+.logo{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:900;letter-spacing:-0.03em}
+.logo span{color:var(--red)}
+.sub{font-size:0.78rem;color:var(--muted);margin-top:4px;letter-spacing:0.06em;text-transform:uppercase}
+.badges{display:flex;gap:8px;justify-content:center;margin-top:12px}
+.badge{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:0.72rem;color:var(--muted)}
+.badge.yt{border-color:rgba(255,59,59,0.3);color:#ff8080}
+.badge.tt{border-color:rgba(255,255,255,0.12);color:rgba(255,255,255,0.55)}
+.card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.09);border-radius:22px;padding:22px;backdrop-filter:blur(20px);margin-bottom:14px}
+.card-label{font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px}
+.url-row{display:flex;gap:8px}
+.url-input{flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:13px 15px;color:var(--text);font-size:0.88rem;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s}
+.url-input:focus{border-color:rgba(255,59,59,0.5)}
+.url-input::placeholder{color:rgba(255,255,255,0.2)}
+.paste-btn{background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:10px;padding:0 14px;color:var(--muted);cursor:pointer;font-size:0.8rem;font-family:'DM Sans',sans-serif;transition:all 0.2s;white-space:nowrap}
+.paste-btn:hover{color:var(--text);background:rgba(255,255,255,0.1)}
+.fmt-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.fmt-card{background:rgba(255,255,255,0.03);border:2px solid rgba(255,255,255,0.07);border-radius:12px;padding:13px;cursor:pointer;transition:all 0.2s;text-align:center}
+.fmt-card:hover{border-color:rgba(255,59,59,0.25)}
+.fmt-card.active{border-color:var(--red);background:rgba(255,59,59,0.07)}
+.fmt-icon{font-size:1.5rem;margin-bottom:3px}
+.fmt-name{font-size:0.82rem;font-weight:600}
+.fmt-desc{font-size:0.68rem;color:var(--muted)}
+.q-row{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.q-btn{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;padding:5px 12px;font-size:0.72rem;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+.q-btn.active{background:rgba(255,59,59,0.1);border-color:rgba(255,59,59,0.4);color:var(--red)}
+.dl-btn{width:100%;background:linear-gradient(135deg,#ff3b3b,#ff6b3b);border:none;border-radius:14px;padding:15px;color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.95rem;cursor:pointer;margin-top:16px;transition:all 0.3s}
+.dl-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 30px rgba(255,59,59,0.3)}
+.dl-btn:disabled{opacity:0.55;cursor:not-allowed;transform:none}
+.prog-wrap{display:none;margin-top:12px}
+.prog-wrap.show{display:block}
+.prog-bg{height:3px;background:rgba(255,255,255,0.07);border-radius:2px;overflow:hidden;margin-bottom:6px}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--red),#ff6b3b);border-radius:2px;transition:width 0.4s;width:0%}
+.prog-text{font-size:0.73rem;color:var(--muted);text-align:center}
+.err{display:none;margin-top:10px;padding:10px 14px;background:rgba(255,59,59,0.07);border:1px solid rgba(255,59,59,0.2);border-radius:10px;font-size:0.8rem;color:#ff8080}
+.err.show{display:block}
+.results-wrap{display:none;margin-top:6px}
+.results-wrap.show{display:block}
+.single-result{background:rgba(0,229,160,0.05);border:1px solid rgba(0,229,160,0.18);border-radius:16px;padding:16px;animation:fadeUp 0.4s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.single-title{font-size:0.84rem;font-weight:600;margin-bottom:10px;word-break:break-word}
+.dl-link{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:12px 14px;text-decoration:none;color:var(--text);font-size:0.82rem;transition:all 0.2s}
+.dl-link:hover{background:rgba(0,229,160,0.08);border-color:rgba(0,229,160,0.3);color:var(--green)}
+.dl-badge{background:rgba(255,255,255,0.07);border-radius:6px;padding:2px 8px;font-size:0.65rem;color:var(--muted)}
+.playlist-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:8px}
+.playlist-name{font-size:0.9rem;font-weight:700}
+.playlist-count{font-size:0.72rem;color:var(--muted);margin-top:2px}
+.dl-all-btn{background:linear-gradient(135deg,var(--red),#ff6b3b);border:none;border-radius:10px;padding:9px 16px;color:white;font-family:'Syne',sans-serif;font-weight:700;font-size:0.78rem;cursor:pointer;white-space:nowrap;transition:all 0.2s;flex-shrink:0}
+.dl-all-btn:hover{opacity:0.85}
+.playlist-items{display:flex;flex-direction:column;gap:7px;max-height:440px;overflow-y:auto;padding-right:2px}
+.playlist-items::-webkit-scrollbar{width:3px}
+.playlist-items::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px}
+.playlist-item{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:11px;padding:10px 12px;display:flex;align-items:center;gap:10px;transition:all 0.2s}
+.playlist-item:hover{background:rgba(255,255,255,0.05)}
+.item-num{font-size:0.68rem;color:var(--muted);min-width:18px;text-align:right}
+.item-thumb{width:52px;height:36px;border-radius:6px;object-fit:cover;background:rgba(255,255,255,0.05);flex-shrink:0}
+.item-info{flex:1;min-width:0}
+.item-title{font-size:0.78rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item-dur{font-size:0.67rem;color:var(--muted);margin-top:1px}
+.item-dl-btn{background:rgba(255,59,59,0.1);border:1px solid rgba(255,59,59,0.22);border-radius:8px;padding:6px 11px;color:#ff8080;font-size:0.7rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;flex-shrink:0}
+.item-dl-btn:hover{background:rgba(255,59,59,0.2)}
+.how-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-top:6px}
+.how-title{font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px}
+.step{display:flex;gap:10px;align-items:flex-start;margin-bottom:8px}
+.step:last-child{margin-bottom:0}
+.sn{width:20px;height:20px;border-radius:50%;background:rgba(255,59,59,0.12);border:1px solid rgba(255,59,59,0.25);display:flex;align-items:center;justify-content:center;font-size:0.65rem;color:var(--red);flex-shrink:0;margin-top:1px}
+.st{font-size:0.79rem;color:rgba(255,255,255,0.5);line-height:1.5}
+.footer{text-align:center;margin-top:32px;font-size:0.68rem;color:rgba(255,255,255,0.18)}
+</style>
+</head>
+<body>
+<div class="bg"><div class="blob"></div><div class="blob"></div></div>
+<div class="wrap">
+  <div class="header">
+    <div class="logo">ZEYY <span>DL</span></div>
+    <div class="sub">YouTube & TikTok Downloader</div>
+    <div class="badges">
+      <div class="badge yt">▶ YouTube + Playlist</div>
+      <div class="badge tt">♪ TikTok</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Paste Link</div>
+    <div class="url-row">
+      <input class="url-input" id="urlInput" type="url" placeholder="youtube.com/watch?v=... atau playlist, tiktok.com/...">
+      <button class="paste-btn" onclick="pasteUrl()">📋 Paste</button>
+    </div>
+    <div class="fmt-row">
+      <div class="fmt-card active" id="fmt-mp4" onclick="setFormat('mp4')">
+        <div class="fmt-icon">🎬</div>
+        <div class="fmt-name">Video</div>
+        <div class="fmt-desc">MP4 dengan audio</div>
+      </div>
+      <div class="fmt-card" id="fmt-mp3" onclick="setFormat('mp3')">
+        <div class="fmt-icon">🎵</div>
+        <div class="fmt-name">Audio Only</div>
+        <div class="fmt-desc">MP3 tanpa video</div>
+      </div>
+    </div>
+    <div class="q-row" id="qualityRow">
+      <button class="q-btn" onclick="setQ('360',this)">360p</button>
+      <button class="q-btn active" onclick="setQ('720',this)">720p</button>
+      <button class="q-btn" onclick="setQ('1080',this)">1080p</button>
+      <button class="q-btn" onclick="setQ('max',this)">Max</button>
+    </div>
+    <button class="dl-btn" id="dlBtn" onclick="startDownload()">⬇️ Download</button>
+    <div class="prog-wrap" id="progWrap">
+      <div class="prog-bg"><div class="prog-fill" id="progFill"></div></div>
+      <div class="prog-text" id="progText">Memproses...</div>
+    </div>
+    <div class="err" id="errMsg"></div>
+  </div>
+
+  <div class="results-wrap" id="resultsWrap"></div>
+
+  <div class="how-card">
+    <div class="how-title">Cara Pakai</div>
+    <div class="step"><div class="sn">1</div><div class="st">Copy link dari YouTube (video atau playlist) atau TikTok</div></div>
+    <div class="step"><div class="sn">2</div><div class="st">Paste di kolom atas, pilih format Video atau Audio Only</div></div>
+    <div class="step"><div class="sn">3</div><div class="st">Klik Download — playlist bisa download satu-satu atau semua sekaligus</div></div>
+  </div>
+  <div class="footer">ZEYY DL — Free, No Login, No BS</div>
+</div>
+
+<script>
+var fmt = 'mp4';
+var quality = '720';
+window._pvideos = [];
+
+function setFormat(f) {
+  fmt = f;
+  document.getElementById('fmt-mp4').classList.toggle('active', f==='mp4');
+  document.getElementById('fmt-mp3').classList.toggle('active', f==='mp3');
+  document.getElementById('qualityRow').style.display = f==='mp3' ? 'none' : 'flex';
+}
+
+function setQ(q, el) {
+  quality = q;
+  document.querySelectorAll('.q-btn').forEach(function(b){b.classList.remove('active');});
+  el.classList.add('active');
+}
+
+async function pasteUrl() {
+  try { document.getElementById('urlInput').value = await navigator.clipboard.readText(); }
+  catch(e) { document.getElementById('urlInput').focus(); }
+}
+
+function setP(pct, txt) {
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progText').textContent = txt;
+}
+
+function showErr(msg) {
+  var e = document.getElementById('errMsg');
+  e.textContent = msg;
+  e.classList.add('show');
+  document.getElementById('progWrap').classList.remove('show');
+  document.getElementById('dlBtn').disabled = false;
+  document.getElementById('dlBtn').textContent = '⬇️ Download';
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmtDur(s) {
+  if (!s) return '';
+  var m = Math.floor(s / 60), sec = s % 60;
+  return m + ':' + (sec < 10 ? '0' : '') + sec;
+}
+
+function extractYTId(url) {
+  var m = url.match(/[?&]v=([a-zA-Z0-9_-]{11})/) || url.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+
+function buildDlUrl(videoId) {
+  var ytUrl = 'https://www.youtube.com/watch?v=' + videoId;
+  if (fmt === 'mp3') {
+    return 'https://ytmp3.cc/en13/?url=' + encodeURIComponent(ytUrl);
+  } else {
+    return 'https://www.y2mate.com/youtube/' + videoId;
+  }
+}
+
+function makeLink(href, label, badge) {
+  return '<a class="dl-link" href="' + href + '" target="_blank" rel="noopener"><span>' + label + '</span><span class="dl-badge">' + badge + '</span></a>';
+}
+
+function showSingleLinks(url, platform, vidId) {
+  var wrap = document.getElementById('resultsWrap');
+  var links = '';
+  if (platform === 'TikTok') {
+    links += makeLink('https://snaptik.app/?url=' + encodeURIComponent(url), '🎵 Download TikTok (SnapTik)', 'MP4');
+    links += makeLink('https://tikmate.online/?url=' + encodeURIComponent(url), '🎵 Download TikTok (TikMate)', 'Backup');
+  } else if (vidId) {
+    if (fmt === 'mp3') {
+      links += makeLink('https://ytmp3.cc/en13/?url=' + encodeURIComponent('https://youtube.com/watch?v=' + vidId), '🎵 Download MP3 (ytmp3.cc)', 'MP3');
+      links += makeLink('https://www.y2mate.com/youtube-mp3/' + vidId, '🎵 Download MP3 (y2mate)', 'MP3');
+    } else {
+      links += makeLink('https://www.y2mate.com/youtube/' + vidId, '🎬 Download MP4 (y2mate)', 'MP4');
+      links += makeLink('https://yt5s.io/en40/?url=' + encodeURIComponent('https://youtube.com/watch?v=' + vidId), '🎬 Download MP4 (yt5s)', 'Backup');
+    }
+  }
+  wrap.innerHTML = '<div class="single-result"><div class="single-title">✅ Pilih link download:</div><div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">' + links + '</div></div>';
+  wrap.classList.add('show');
+}
+
+async function startDownload() {
+  var url = document.getElementById('urlInput').value.trim();
+  if (!url) { showErr('Paste link dulu!'); return; }
+  if (!url.startsWith('http')) { showErr('Link tidak valid!'); return; }
+
+  document.getElementById('errMsg').classList.remove('show');
+  document.getElementById('resultsWrap').innerHTML = '';
+  document.getElementById('resultsWrap').classList.remove('show');
+  document.getElementById('dlBtn').disabled = true;
+  document.getElementById('dlBtn').textContent = '⏳ Memproses...';
+  document.getElementById('progWrap').classList.add('show');
+  setP(20, 'Mengambil info...');
+
+  var isPlaylist = url.includes('list=') && (url.includes('youtube') || url.includes('youtu'));
+  var isTT = url.includes('tiktok.com');
+
+  try {
+    if (isTT) {
+      setP(100, 'Berhasil!');
+      showSingleLinks(url, 'TikTok', null);
+    } else if (isPlaylist) {
+      await handlePlaylist(url);
+    } else {
+      var vidId = extractYTId(url);
+      setP(100, 'Berhasil!');
+      showSingleLinks(url, 'YouTube', vidId);
+    }
+  } catch(e) {
+    showErr('Gagal: ' + e.message);
+  }
+
+  document.getElementById('progWrap').classList.remove('show');
+  document.getElementById('dlBtn').disabled = false;
+  document.getElementById('dlBtn').textContent = '⬇️ Download Lagi';
+}
+
+async function handlePlaylist(url) {
+  setP(30, 'Membaca playlist...');
+  var listMatch = url.match(/[?&]list=([a-zA-Z0-9_-]+)/);
+  if (!listMatch) throw new Error('Playlist ID tidak ketemu');
+  var listId = listMatch[1];
+
+  var instances = [
+    'https://invidious.io.lol',
+    'https://inv.nadeko.net',
+    'https://invidious.privacydev.net',
+    'https://yt.artemislena.eu',
+    'https://invidious.nerdvpn.de'
+  ];
+
+  var pdata = null;
+  for (var i = 0; i < instances.length; i++) {
+    try {
+      var res = await fetch(instances[i] + '/api/v1/playlists/' + listId + '?fields=title,videoCount,videos', {
+        signal: AbortSignal.timeout(8000)
+      });
+      if (res.ok) {
+        pdata = await res.json();
+        if (pdata && pdata.videos && pdata.videos.length) break;
+      }
+    } catch(e) { continue; }
+  }
+
+  setP(90, 'Membuat daftar...');
+
+  if (pdata && pdata.videos && pdata.videos.length > 0) {
+    window._pvideos = pdata.videos;
+    renderPlaylist(pdata);
+  } else {
+    showErr('Gagal baca playlist. Coba link video satu-satu!');
+  }
+}
+
+function renderPlaylist(data) {
+  var videos = data.videos || [];
+  var wrap = document.getElementById('resultsWrap');
+  wrap.innerHTML = '';
+
+  var card = document.createElement('div');
+  card.className = 'card';
+
+  var hdr = document.createElement('div');
+  hdr.className = 'playlist-header';
+
+  var titleDiv = document.createElement('div');
+  var pName = document.createElement('div');
+  pName.className = 'playlist-name';
+  pName.textContent = '📋 ' + (data.title || 'Playlist');
+  var pCount = document.createElement('div');
+  pCount.className = 'playlist-count';
+  pCount.textContent = videos.length + ' video';
+  titleDiv.appendChild(pName);
+  titleDiv.appendChild(pCount);
+
+  var allBtn = document.createElement('button');
+  allBtn.className = 'dl-all-btn';
+  allBtn.textContent = '⬇️ Semua';
+  allBtn.onclick = downloadAll;
+
+  hdr.appendChild(titleDiv);
+  hdr.appendChild(allBtn);
+  card.appendChild(hdr);
+
+  var list = document.createElement('div');
+  list.className = 'playlist-items';
+  list.id = 'playlistItems';
+
+  videos.forEach(function(v, i) {
+    var item = document.createElement('div');
+    item.className = 'playlist-item';
+
+    var num = document.createElement('div');
+    num.className = 'item-num';
+    num.textContent = i + 1;
+
+    var img = document.createElement('img');
+    img.className = 'item-thumb';
+    img.src = 'https://img.youtube.com/vi/' + v.videoId + '/mqdefault.jpg';
+    img.onerror = function() { this.style.display = 'none'; };
+
+    var info = document.createElement('div');
+    info.className = 'item-info';
+    var title = document.createElement('div');
+    title.className = 'item-title';
+    title.textContent = v.title || ('Video ' + (i + 1));
+    var dur = document.createElement('div');
+    dur.className = 'item-dur';
+    dur.textContent = fmtDur(v.lengthSeconds);
+    info.appendChild(title);
+    info.appendChild(dur);
+
+    var btn = document.createElement('button');
+    btn.className = 'item-dl-btn';
+    btn.id = 'dlbtn-' + i;
+    btn.textContent = '⬇️ DL';
+    (function(vid, b) {
+      btn.onclick = function() { dlOne(vid, b); };
+    })(v.videoId, btn);
+
+    item.appendChild(num);
+    item.appendChild(img);
+    item.appendChild(info);
+    item.appendChild(btn);
+    list.appendChild(item);
+  });
+
+  card.appendChild(list);
+  wrap.appendChild(card);
+  wrap.classList.add('show');
+}
+
+function dlOne(videoId, btn) {
+  btn.textContent = '✅';
+  btn.style.color = 'var(--green)';
+  btn.style.borderColor = 'rgba(0,229,160,0.3)';
+  btn.disabled = true;
+  var dlUrl = buildDlUrl(videoId);
+  window.open(dlUrl, '_blank');
+}
+
+async function downloadAll() {
+  var videos = window._pvideos || [];
+  for (var i = 0; i < videos.length; i++) {
+    var btn = document.getElementById('dlbtn-' + i);
+    if (btn && !btn.disabled) {
+      dlOne(videos[i].videoId, btn);
+      await new Promise(function(r) { setTimeout(r, 800); });
+    }
+  }
+}
+</script>
+</body>
+</html>
